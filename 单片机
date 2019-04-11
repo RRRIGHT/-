@@ -1,0 +1,534 @@
+#include<reg52.h>
+#define uint unsigned int 
+#define uchar unsigned char
+unsigned char code SEG7[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xF8,0x80,0x90}; //共阳极
+unsigned char code SEG8[]={0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0x00,0x10}; //共阳极
+struct time	   //定义时分秒年月日学号
+{
+	unsigned char second;	//秒
+	unsigned char minute;	//分
+	unsigned char hour;		 //时
+	unsigned char day;		  //天
+    unsigned char month;		   //月
+    unsigned char year;		   // 年
+	unsigned char  phona;       //电话1
+	unsigned char  phonb;      //电话2
+
+}time1;
+unsigned int k;	   //定义整型k
+void delay(k)	 //延时子程序
+{
+	unsigned char j;
+	while((k--)!=0)
+	for(j=0;j<125;j++);
+}
+unsigned char SecondH,SecondL,MinutH,MinutL,HourH,HourL; //定义时分秒的高、低位（十.个位）
+uchar second=55,minute=59,hour=23;	
+void display0(SecondH,SecondL,MinutH,MinutL,HourH,HourL)//显示子程序时分秒）
+{  
+	SecondH=second/10;		//秒十位
+	SecondL=second%10;		  //秒个位
+	MinutH=minute/10;		  //分十位
+	MinutL=minute%10;		 //分个位
+	HourH=hour/10;			// 时十位
+	HourL=hour%10;			 //时个位
+  
+	P0=SEG7[SecondL];	   //秒个位
+	P3=0x01;				//第一个灯亮
+	delay(1);
+
+	P0=SEG7[SecondH];		 //秒十位
+	P3=0x02;					 //第二个灯亮
+	delay(1);
+
+	P0=0xbf;          			 //显示“-”
+	P3=0x04;					 //第三个灯
+	delay(1);
+	
+	P0=SEG7[MinutL];			//分钟个位
+	P3=0x08;					  //第四个灯
+	delay(1);
+
+	P0=SEG7[MinutH];		  //分钟十位
+	P3=0x10;				  //第五个灯
+	delay(1);
+	
+	P0=0xbf;				    //显示“-”
+	P3=0x20;				   //第六个灯
+	delay(1);
+	
+	P0=SEG7[HourL];		   	//小时个位
+	P3=0x40;					 //第七个灯
+	delay(1);
+	
+	P0=SEG7[HourH];		  //小时十位
+	P3=0x80;				  //第八个灯
+	delay(1);
+}
+
+void display01(SecondH,SecondL)  //秒单独显示子程序
+{  	
+	SecondH=second/10;			  //秒十位
+	SecondL=second%10;			   //秒个位
+
+	P0=SEG7[SecondL];			  //显示
+	P3=0x01;						   //同上第一个数码管
+	delay(1);
+
+	P0=SEG7[SecondH];		    //显示
+	P3=0x02;					    //第二个
+	delay(1);
+}
+void display02(MinutH,MinutL)	//分单独显示子程序
+{  
+	MinutH=minute/10;	 //分十位
+	MinutL=minute%10;	 //分个位
+	
+	P0=SEG7[MinutL];		  //显示
+	P3=0x08;				 //第四位
+	delay(1);
+
+	P0=SEG7[MinutH];		  //显示
+	P3=0x10;				  	//第五位
+	delay(1);
+}
+
+
+void display03(HourH,HourL)   //小时显示子程序
+{  	
+	HourH=hour/10;		   //时十位
+	HourL=hour%10;			//时个位
+  
+	P0=SEG7[HourL];			//显示
+	P3=0x40;					//第七位
+	delay(1);
+	
+	P0=SEG7[HourH];			 	//显示
+	P3=0x80;					   //第八位
+	delay(1);
+}
+
+unsigned char dayH,dayL,monthH,monthL,yearH1,yearL1,yearH2,yearL2;	 //定义年月日
+uchar day=28,month=2;		//定义天和月char2字节
+uint year=2019;				  //定义年int四字节
+void display1(dayH,dayL,monthH,monthL,yearH1,yearL1,yearH2,yearL2)	//显示年月日
+  {
+
+	dayH=day/10;		 //天十位
+	dayL=day%10;		 //天个位
+	monthH=month/10;	  //月十位
+	monthL=month%10;		//月个位
+	yearH1=year%100/10;	  	//	年十位（先除100余两位再除留高位)
+	yearL1=year%10;		  //	  年个位留个位
+	yearH2=year/1000;		//	   年千位
+	yearL2=year%1000/100;	  //年百位除千余百位
+  
+  
+  P0=SEG7[dayH];				  //  显示
+	P3=0x02;					 //第二个
+	delay(1);
+	
+	P0=SEG7[dayL];			  //显示
+	P3=0x01;				   //第一个
+	delay(1);
+	
+	P0=SEG7[monthH];			//显示
+	P3=0x08;						//第四个
+	delay(1);
+	
+	P0=SEG8[monthL];				//显示
+	P3=0x04;					  //第三个
+	delay(1);
+	
+	P0=SEG7[yearH1];		   //显示
+	P3=0x20;				  //第六位
+	delay(1);
+	
+	P0=SEG8[yearL1];		   //显示
+	P3=0x10;				   //第五个
+	delay(1);
+	P0=SEG7[yearL2];		   //显示
+	P3=0x40;				  //第七位
+	delay(1);
+	P0=SEG7[yearH2];			 //显示
+	P3=0x80;					//第八位
+	delay(1);
+}
+void display11(dayH,dayL)	 //天单独显示子程序
+{
+	dayH=day/10;			   //显示天十位
+	dayL=day%10;				//显示天个位
+  	P0=SEG7[dayH];				   //显示
+	P3=0x02;					  //第二位
+	delay(1);
+	P0=SEG7[dayL];			  //显示
+	P3=0x01;					    //第一位
+	delay(1);
+}
+void display12(monthH,monthL)	  //月显示子程序
+  {
+	monthH=month/10;		   //月十位
+	monthL=month%10;			//月个位
+	P0=SEG7[monthH];
+	P3=0x08;				//第四位
+	delay(1);
+	P0=SEG7[monthL];
+	P3=0x04;					//第三位
+	delay(1);
+}
+void display13(yearH1,yearL1,yearH2,yearL2)	//年单独显示子程序
+  {
+	yearH1=year%100/10;	   //年十位
+	yearL1=year%10;			//年个位
+	yearH2=year/1000;		//年千位
+	yearL2=year%1000/100;	 //年百位
+	P0=SEG7[yearL1];
+	P3=0x10;				  //第五位
+	delay(1);
+		
+	P0=SEG7[yearH1];
+	P3=0x20;				 //第六位
+	delay(1);
+	
+	P0=SEG7[yearL2];
+	P3=0x40;				  //第七位
+	delay(1);
+
+	P0=SEG7[yearH2];
+	P3=0x80;				 //第八位
+	delay(1);
+}
+
+unsigned char phon1,phon2,phon3,phon4,phon5,phon6,phon7,phon8;   //定义学号
+uint phona=7182,phonb=3432;
+void display3(phon1,phon2,phon3,phon4,phon5,phon6,phon7,phon8)
+  {
+	phon1=phona/1000;           //学号第一位	
+	phon2=phona%1000/100;   //学号第二位
+	phon3=phona%100/10;     //学号第三位
+	phon4=phona%10;       //学号第四位
+	phon5=phonb/1000;         //学号第五位
+	phon6=phonb%1000/100;           //学号第六位
+	phon7=phonb%100/10;             //学号第七位
+	phon8=phonb%10;                 //学号第八位
+
+	P0=SEG7[phon7];				  //  显示
+	P3=0x02;					 //第二个
+	delay(1);
+				
+	P0=SEG7[phon8];			  //显示
+	P3=0x01;				   //第一个
+	delay(1);
+				
+	P0=SEG7[phon5];			//显示
+	P3=0x08;						//第四个
+	delay(1);
+				
+	P0=SEG7[phon6];				//显示
+	P3=0x04;					  //第三个
+	delay(1);
+				
+	P0=SEG7[phon3];		   //显示
+	P3=0x20;				  //第六位
+	delay(1);
+				
+	P0=SEG7[phon4];		   //显示
+	P3=0x10;				   //第五个
+	delay(1);
+				
+	P0=SEG7[phon2];		   //显示
+	P3=0x40;				  //第七位
+	delay(1);
+				
+	P0=SEG7[phon1];			 //显示
+	P3=0x80;					//第八位
+	delay(1);
+}
+sbit key0=P1^0;				//定义端口P1.0	sbit 1位
+sbit key1=P1^4;				 //定义端口P1.4
+sbit key2=P1^5;					//定义端口P1.5
+sbit key3=P1^6;				   //定义端口P1.6
+sbit key4=P1^7;         //定义端口P1.7
+sbit key5=P1^3;        //定义端口P1.3
+unsigned int a;
+void main()					  //主程序
+{	
+	
+	key0=0;					  //P1.0清零全部断空
+	TMOD = 0x01; 			   //T0定时50ms方式1初始化
+	TH0=0x3c; 				//T0赋计数初值
+	TL0=0xb0; 
+	 EA=1;					  //开总中断
+	 ET0=1;						//开定时器0中断
+   TR0=1;					//启动中断
+	
+
+	while(1)				//循环检测
+	{ 	
+		int a,k;
+	    if(key1==0)			   //设置标志位flag		（切换年和闹钟）
+			{ 
+				delay(10);
+				if(key1==0)			 //扫描S1未按
+				{
+						a++;
+					if(a==3)		  //两个用来切换年和时间
+						a=0;
+				   while(!key1);	   //按键松手检测	 非零
+        		}						//成立就停在key1
+			}
+			 if(key2==0)			   //再看key2		 （用来跳四个位选择）
+			{  
+				delay(10);
+				if(key2==0)			  //设置标志flag
+				{
+					k++;
+					if(k==4)			 //用来切换四个两位
+						k=0;
+					while(!key2);		 //松手检测
+				}
+			}
+			 if(key3==0)			 //判断key3是不是为零	 （用来加法）
+			{
+				 delay(10);
+				if(key3==0)				   //设置标志flag		若为零
+				{
+					if(k==1)			 //看k是不是位1（第一个位置是秒中和天数）
+					{	
+							if(a==0)	  //看a是不是等于零  为零就没跳
+							{
+								
+    								second++;		  //（秒开始加）
+ 									if(second==60) 
+										second=0;
+							}		
+							else		//a=1跳转另一页
+							{
+								day++;
+									//天开始加
+								 if(day==31&&(month==4||month==6||month==9||month==11))	 //&&（与）逻辑运算两边都非零才为真	逻辑运算||或
+day=1;	  //满31进位位1有三十天								 if(day==32&&(month==1||month==3||month==5||month==7||month==8||month==10||month==12))
+ day=1;		//满32进位位1有三十一天
+								 if(month==2)
+								 	{
+										if(year%400==0||(year%4==0&&year%100!=0))
+										{
+											if(day==30)
+											day=1;
+										}
+										else if(day	==29)
+											day=1;
+									}
+										 //判断是不是能整除（！可以整除）
+											 	//有29天
+								 	  //不能整出不是闰年
+											 		   //有二十八天
+								 
+							}			
+						
+					}
+					if(k==2)			  //按了两次（第二位是分钟和月）
+					{
+								if(a==0)		 //a=0没有跳转的时候
+							{
+								
+								    minute++;	   //分钟加法
+								 if(minute==60)
+										minute=0;
+							}
+							else				//a=1跳转另一页
+							{
+								month++;			 //月加法
+								if(month==13)
+									month=1;
+							}
+          }
+					if(day>=30&&month==2)
+								day=1;	
+					if(day>=31&&(month==4||month==6||month==9||month==11))
+				      day=1;
+          if(k==3)	   //按第三下是年和小时
+					{
+								 if(a==0)	  //a=0没跳转
+							{
+								
+								hour++;			  //小时加法
+									if(hour==24)
+										hour=0;
+							}
+							else			  //跳转a=1
+								year++;		 //年加法
+					    					    			
+					}				
+					while(!key3);     //松手判断 否则一直在3里    
+        }
+      }
+			 if(key4==0)		//判断S4是否按下（减法）
+			{
+				 delay(10);
+				if(key4==0)	    //设标志flag
+				{
+					if(k==1)	 //k=1第一位（秒和天的减法）
+					{	
+							if(a==0)	  //未跳转按
+							{
+								
+								second--;	   //	 减法
+									if(second==0)
+										second=59;
+							}		
+							else	  //a=1跳转
+							{
+								day--;		//天减法
+								 if(day==0&&(month==4||month==6||month==9||month==11))	  //逻辑运算两边非零为真
+											 day=30;	  //减空了还原30
+								 if(day==0&&(month==1||month==3||month==5||month==7||month==8||month==10||month==12))
+											 day=31;		 //减空了还原31
+								 
+								 
+								 
+								 if(month==2)
+								 {
+								 	if(year%400==0||(year%4==0&&year%100!=0))
+									{
+										if(day==0)
+										day=29;
+									}
+									else if(day==0)
+										day=28;
+								}//可以整除4为闰年
+														  //	减空了29
+									  //不能整除不是闰年
+											 				  //减空了还原28
+								 
+							}			
+						
+					}
+					if(k==2)	 //第二位（月份和分钟）
+					{
+								if(a==0)	  //未跳转
+							{		
+		
+								    minute--;		 //分钟减法
+								 if(minute==0)  
+							
+										minute=59;
+							}
+							else				//a=1跳转
+							{
+								month--;	  //月减法
+								if(month==0)
+									month=12;
+							}
+          }
+				
+          if(k==3)					//  第三位（年和小时的减法）
+					{
+								 if(a==0)	//未跳转
+							{
+								hour--;		   //小时减法
+									if(hour==0)
+										hour=23;
+							}
+							else		 //a=1跳转
+								year--;	//年减法
+					    					    			
+					}				
+					while(!key4);     //松手判断否则一直在4     
+        }
+      }
+  	    //开始进行显示
+		
+		if(a==0)		  //a未跳转
+		{
+			if(k==0) //没有按按键
+				 display0(SecondH,SecondL,MinutH,MinutL,HourH,HourL);//显示时钟的八位
+		  if(k==1)			//按第一下按键
+			{
+				display01(SecondH,SecondL);  //只显示秒的两位
+			}
+			if(k==2)		//按第二下按键
+				{
+				display02(MinutH,MinutL);	  //只显示分钟两位
+				}
+			if(k==3)		 //按第三下按键
+			{
+				display03(HourH,HourL);		//只显示小时的两位
+			}		
+		}
+			
+		if(a==1)	   //a=1 按键S1按下显示年月日
+		{
+		
+			if(k==0)	 //未按按键
+						display1(dayH,dayL,monthH,monthL,yearH1,yearL1,yearH2,yearL2);//显示年月日	
+			if(k==1)	  //按第一下按键
+			{
+				display11(dayH,dayL);	 //只显示天的两位
+			}
+				if(k==2)    //按第二下按键
+				{
+					display12(monthH,monthL);	  //只显示月的两位
+				}
+					if(k==3) //按第三下
+					{
+						display13(yearH1,yearL1,yearH2,yearL2);	//显示年的四位
+					}						
+				}
+		if(a==2)       //a=3 按键S1按下显示电话
+			display3(phon1,phon2,phon3,phon4,phon5,phon6,phon7,phon8);
+	}
+}
+	
+unsigned short int tcount;
+void exter0() interrupt 1	  //定时T0中断函数
+{	
+	tcount++; 			  //计数
+	if(tcount==20) 			//判断循环是否超限
+	{ 
+		tcount=0; 
+	    second++;				//秒开始计数
+
+		if (second==60)			//秒到限
+   		{
+		 	second=0;
+			 minute++;		  //分计数
+		}
+		if (minute==60)		   //分到限
+		{
+			minute=0;
+			hour++;			  //小时计数
+		}
+		if(hour==24)		  //小时到限
+		{
+			hour=0;
+			day++;			   //天计数
+	
+			if(day==31&&(month==4||month==6||month==9||month==11))	  //判断天的限额 4.6.9.11
+			{
+	 			day=1;
+				 month++;		 //月开始计数
+			}
+			if(day==32&&(month==1||month==3||month==5||month==7||month==8||month==10||month==12))	//判断天的限额1.3.5.7.8.10.12
+			{
+				day=1;
+				month++;   //月开始计数
+				if(month==13)	//月到上限
+				{
+					month=1;
+					year++;		  //年开始计数
+				}
+			}
+			if(month==2&&day==29)  //天的上限非闰年		 28
+			{
+				 day=1;
+				month++;					  //月计数
+			}
+			if(month==2&&day==30)   //闰年		  29
+			{ 
+				day=1;
+				 month++;				 //月计数	
+			}
+  		}
+	}	
+}	
